@@ -1,0 +1,164 @@
+---
+title: "smrtlinkr"
+author: "Nigel Delaney"
+date: "October 9, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(knitr)
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+`smrtlinkr` is an R package that allows users to communicate with our internal 
+SmrtLink servers^[A complete list of SmrtLink
+servers is available
+from: https://confluence.pacificbiosciences.com/display/SL/On-site+SMRT+Link+servers]
+to query the database, submit jobs, or obtain information about finished jobs from 
+reports.  This document provides a tutorial of the basic functionality, though 
+more features are either available in the package or can be upon request.
+
+## Installation
+
+From your personal computer or a PacBio RStudio server such as `bayes:8787` you 
+can install the smrtlinkr package using the following commands:
+
+```{r eval=FALSE}
+install.packages("devtools")
+library(devtools)
+install_github("PacificBiosciences/smrtlinkr")
+```
+
+## Querying Jobs and Datasets
+
+Broadly speaking, SmrtLink servers contain two types of information:
+
+* **Data** such as subreadsets, reference fasta file, etc.  This is the raw input into
+    its analysis pipelines.
+* **Jobs** which are analyzes and processes that take data as input, and produce output
+    such as summary reports, new BAM files with consensus reads, etc.
+    
+Interacting with the SMRTLink servers entails a serious of commands that can 
+examine the available data on a server, submit a new job by referencing the data
+on the server as inputs, or examine the results/reports of a job^[A more
+detailed description of the SMRTLink REST API can be found here:
+http://smrtflow.readthedocs.io/en/latest/].
+
+Most commands in `smrtlinkr` for querying data of some are of the form
+`fetchXXX(... , server, port)` and require a server and a port to be specified. 
+These values are particular to each unique server (smrtlink-alpha,
+smrtlink-beta, etc.) though by default the commands will query smrtlink-internal
+on port 8081.
+
+## Querying the database
+
+Both data and jobs are identified as being of particular types, e.g. a reference
+data type or a subreadset data type.  To access data we typically need to know 
+the type and id of an item.  The following code displays all the available types
+of data, and shows how we can use this type information to find all the E. coli
+reference sequences available on smrtlink-beta.
+
+### Querying available data
+
+First to list all the available data types:
+
+```{r eval=TRUE}
+library(smrtlinkr)
+# View all the available DataSet types
+df = fetchDataSetTypes()
+```
+
+**Available Dataset Types**
+
+* references
+* ccsreads
+* contigs
+* subreads
+* barcodes
+* ccsalignments
+* hdfsubreads
+* alignments
+* gmapreferences
+
+
+If you know the type of data you are looking for, you can easily load the list
+of datatypes and query it in R.  For example, the code below allows us to find 
+all the E. coli reference sequences known to SMRTLink beta.
+
+### Example: Query location of E. coli reference sequences
+
+```{r}
+# List all the reference data types that are known to the server
+df = fetchDataSetsByType("references", server = "smrtlink-beta", port = 8081)
+# Now let's print the path of all the E. coli ones.
+kable(df[grep("coli", df$name), c("name", "path")])
+```
+
+For both references and subreadsets, there are convenience functions
+`fetchSubreadSetInfo` and `fetchReferenceSetInfo` which allow you to obtain more
+information about a particular dataset.  For example to find out information
+about a particular reference dataset
+
+### Example: Getting information about a particular reference set
+
+```{r}
+# Use the reference ID and server information to get more information
+refId = df$id[20]
+# Now query for more info
+info = fetchReferenceSetInfo(refId, server = "smrtlink-beta", port = "8081")
+info
+```
+
+### Example: Getting information about a particular SubreadSet
+
+```{r}
+# Get an id for a particular subreadset
+id = fetchDataSetsByType("subreads")$id[1]
+# Now query for more info
+fetchSubreadSetInfo(id)
+```
+
+
+## Examining Jobs
+
+Similarly to datasets, jobs in SMRTLink also have a "type", the code below lists
+all the available job types.
+
+```{r}
+# View all the available job types
+d = fetchJobTypes()
+kable(d)
+```
+
+Although users may think of a job as the name of a SMRTLink procedure (e.g. Resequencing) 
+internally all such jobs are of type `pbsmrtpipe` and so this is the type that
+will typically be queried to examine results on a smrtlink server. For example
+
+### Example: List all resequencing jobs on smrtlink-beta
+
+```{r fig.align='center'}
+# Let's get all the pbsmrtpipe jobs
+d = fetchJobsByType("pbsmrtpipe", server = "smrtlink-internal", port = 8081)
+
+# Let's only get the resequencing jobs, the type of pbsmrtpipe job is identified
+# in the comment column
+
+# Grep the comment column to find resequencing
+reseqRows = grep("resequencing", d$comment)
+# Now let's list 5 of these jobs names and ids
+d[reseqRows[10:15], c("name", "id")]
+```
+
+### Example: Get Path of subreads and reference for resequencing jobs.
+
+Given a set of resequencing jobs, we might want to for example get the underlying
+reference and subread sets that were used, we can do this with the following 
+function:
+
+```{r}
+paths = fetchSubreadsAndReferencesForResequencingJobs(d[reseqRows[10:15], ])
+kable(paths)
+```
+
+
+
