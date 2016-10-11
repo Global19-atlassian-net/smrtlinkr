@@ -112,7 +112,7 @@ fetchJobsByType <-  function(jobType, server = DEFAULT_SERVER, port = DEFAULT_PO
 #' @param jobTypeID name of the job type
 #' @param id The id of the job
 #' @param server A server address, to which ".nanofluidics.com will be appended
-#' @param  port A port to query the server on (usually 8081 or 9091)
+#' @param port A port to query the server on (usually 8081 or 9091)
 #' @example fetchJobDataStore("pbsmrtpipe", 5270L)
 #' @export
 fetchJobDataStore <-  function(jobType, id, server = DEFAULT_SERVER, port = DEFAULT_PORT) {
@@ -122,24 +122,6 @@ fetchJobDataStore <-  function(jobType, id, server = DEFAULT_SERVER, port = DEFA
                   paste("/secondary-analysis/job-manager/jobs/", jobType, "/",
                         id, "/datastore", sep = ""))
 }
-
-
-#' Fetch job datastore by Job Type and ID
-#'
-#' See: http://smrtflow.readthedocs.io/en/latest/SMRT_Secondary_Service_API/jobs_service_endpoints/fetch_job_datastore.html
-#'
-#' @param jobTypeID Numeric identifier of
-#' @param server A server address, to which ".nanofluidics.com will be appended
-#' @param  port A port to query the server on (usually 8081 or 9091)
-#' @export
-fetchJobDataStore <-  function(jobType, id, server = DEFAULT_SERVER, port = DEFAULT_PORT) {
-  verifyJobType(jobType)
-  id = verifyAndReturnIntegerID(id)
-  fetchFromServer(server, port,
-                  paste("/secondary-analysis/job-manager/jobs/", jobType, "/",
-                        id, "/datastore", sep = ""))
-}
-
 
 #' Fetch job report by Job Type and ID
 #'
