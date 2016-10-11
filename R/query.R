@@ -210,10 +210,18 @@ fetchReferenceSetInfo <- function(id, server = DEFAULT_SERVER, port = DEFAULT_PO
   fetchFromServer(server, port, paste("/secondary-analysis/datasets/references/", id, sep = ""))
 }
 
-#' Post resequencing condition job
+#' Create resequencing condition job
 #'
+#' Create a resequencing condition job on the SMRTLink server, using the numeric ID
+#' of a given reference and subreadset.
 #'
-#'
+#' @param name What is the name of the job
+#' @param refID What is the reference ID
+#' @param subID What is the subreadset ID
+#' @param server Which server to use
+#' @param port Which port to use.
+#' @return A
+#' @export
 postReseqJob <- function(name, refID, subID, server = DEFAULT_SERVER, port = DEFAULT_PORT) {
   # Read in a template file
   jsonFile = system.file("jsonTemplate", "reseq.json", package = "smrtlinkr")
@@ -223,21 +231,9 @@ postReseqJob <- function(name, refID, subID, server = DEFAULT_SERVER, port = DEF
   template = sub("%%RefID", refID, template)
   template = sub("%%SubreadID", subID, template)
 
-  # Now
+  # Now post to the server
   url = paste("http://", server, DEFAULT_SERVER_SUFFIX, port,
               "/secondary-analysis/job-manager/jobs/pbsmrtpipe/", sep = "")
-  req <- httr::POST(url, body = template, httr::verbose())
-  stop_for_status(req)
-  json <- content(req, "text")
-  jsonlite::validate(content(template, "text"))
-
-  # JSON starts with an invalid character:
-  validate(json)
-  json <- substring(json, 2)
-  validate(json)
-
-  # Now we can parse
-  object <- jsonlite::fromJSON(json)
-  print(objects)
-  write(template, file = "/Users/nigel/tmp.json")
+  httr::POST(url, body = template, encode = "json",
+             httr::add_headers("Content-Type" = "application/json"))
 }

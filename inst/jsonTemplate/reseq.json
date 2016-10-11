@@ -36,7 +36,7 @@
     },
     {
       "optionId": "pbalign.task_options.algorithm_options",
-      "value": "-minMatch 12 -bestn 10 -minPctIdentity 70.0",
+      "value": " -bestn 10 -minPctIdentity 70.0",
       "optionTypeId": "pbsmrtpipe.option_types.string"
     },
     {
