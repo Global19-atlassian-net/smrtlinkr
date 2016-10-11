@@ -164,7 +164,7 @@ kable(paths)
 # Submitting Jobs
 
 `smrtlinkr` can also be used to create jobs on SMRTLink, allowing users to
-programatically create jobs and then come back to visit them later.  Below is 
+programatically create jobs and then view them on the SMRTlink server.  Below is 
 example code which shows how to create a resequencing job using the `postReseqJob`
 function.  You can obtain a subreadset ID and referenceset ID by looking at your
 smrtlink server (see data management) or you can also grab it programatically as
