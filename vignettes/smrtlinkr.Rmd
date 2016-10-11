@@ -18,7 +18,7 @@ to query the database, submit jobs, or obtain information about finished jobs fr
 reports.  This document provides a tutorial of the basic functionality, though 
 more features are either available in the package or can be upon request.
 
-## Installation
+# Installation
 
 From your personal computer or a PacBio RStudio server such as `bayes:8787` you 
 can install the smrtlinkr package using the following commands:
@@ -29,7 +29,7 @@ library(devtools)
 install_github("PacificBiosciences/smrtlinkr")
 ```
 
-## Querying Jobs and Datasets
+# Querying Jobs and Datasets
 
 Broadly speaking, SmrtLink servers contain two types of information:
 
@@ -158,6 +158,37 @@ function:
 ```{r}
 paths = fetchSubreadsAndReferencesForResequencingJobs(d[reseqRows[10:15], ])
 kable(paths)
+```
+
+
+# Submitting Jobs
+
+`smrtlinkr` can also be used to create jobs on SMRTLink, allowing users to
+programatically create jobs and then come back to visit them later.  Below is 
+example code which shows how to create a resequencing job using the `postReseqJob`
+function.  You can obtain a subreadset ID and referenceset ID by looking at your
+smrtlink server (see data management) or you can also grab it programatically as
+shown below.
+
+```{r}
+# To create a job, we'll need a job name, a reference ID and a subreadset ID
+refName = "pBR322_HindIII_scr_F_EcoRI_tc6_R_unrolled6x"
+subreadName = "15881P_SB_1G1.25R_A4k"
+
+### OBTAIN A REFERENCE SET ID ###
+# We can get the reference ID either by looking at SMRTLink or just querying here
+refs = fetchDataSetsByType("references")
+# Grep to find the ID of the one we want
+refID = refs$id[grep(refName, refs$name)]
+
+### OBTAIN A SUBREAD SET ID ###
+# Same situation
+subreads = fetchDataSetsByType("subreads")
+subID = subreads$id[grep(subreadName, subreads$name)]
+
+# Now we just submit the job, calling it whatever we want
+postReseqJob("Submitted from R!", refID, subID)
+
 ```
 
 
