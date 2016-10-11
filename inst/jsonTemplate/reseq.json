@@ -16,7 +16,7 @@
   "taskOptions": [
     {
       "optionId": "genomic_consensus.task_options.algorithm",
-      "value": "quiver",
+      "value": "arrow",
       "optionTypeId": "pbsmrtpipe.option_types.string"
     },
     {
@@ -26,7 +26,7 @@
     },
     {
       "optionId": "genomic_consensus.task_options.min_confidence",
-      "value": 40,
+      "value": 20,
       "optionTypeId": "pbsmrtpipe.option_types.integer"
     },
     {
