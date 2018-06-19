@@ -1,4 +1,4 @@
-# Before you started
+# Before you start
 This was an internal unofficially and unsupported repo with no plan for any further development.
 It's currently out of date with the current SMRT-Link web API.
 
